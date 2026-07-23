@@ -1301,16 +1301,12 @@ function _syncLangScreenLogo(){
   if(logo) logo.innerHTML = `<span>${_APP.word1}</span> <span>${_APP.word2}</span>`;
 
   let saved = null;
-  try { saved = localStorage.getItem(_LANG_KEY); } catch(e){}
-  if(saved && ['ht','fr','en'].includes(saved)){
-    document.getElementById('lang-screen').style.display = 'none';
-    _sl(saved);
-    _updateBadge(saved);
-    _updateFooter();
-  } else {
-    _updateBadge('ht');
-    _updateFooter();
-  }
+try { saved = localStorage.getItem(_LANG_KEY); } catch(e){}
+
+// Toujou kite itilizatè a chwazi lang
+document.getElementById('lang-screen').style.display = 'flex';
+_updateBadge('ht');
+_updateFooter();
 })();
 </script>
 </body>
