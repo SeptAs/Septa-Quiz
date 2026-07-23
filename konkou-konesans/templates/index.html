@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>SeptaQuiz – Free World Trivia Challenge | A Septech Product</title>
+
+  <!-- PWA META TAGS -->
+  <link rel="manifest" href="/static/manifest.json"/>
+  <meta name="theme-color" content="#f0c040"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="SeptaQuiz"/>
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png"/>
+  <link rel="apple-touch-icon" sizes="152x152" href="/static/icons/icon-152.png"/>
+  <meta name="description" content="World Trivia Challenge – Free multilingual quiz game in Haitian Creole, French and English. Test your knowledge on geography, history, science, sports and more!"/>
+  <meta name="keywords" content="quiz, trivia, world challenge, kreyol, haitian creole, français, english, geography, history, science, education, septa, haiti"/>
+  <meta property="og:title" content="SeptaQuiz – Free World Trivia Challenge"/>
+  <meta property="og:description" content="Test your knowledge in Kreyòl, Français or English. 10 categories, 3 difficulty levels. A Septech product."/>
+  <meta property="og:type" content="website"/>
+
+  <!-- GOOGLE ADSENSE: Kole script AdSense ou a la apre apwobasyon:
+       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-VOTRE_ID" crossorigin="anonymous"></script>
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0a0a0f;--surface:#12121a;--card:#1a1a26;--border:#2a2a3d;--accent:#f0c040;--accent2:#e05c3a;--accent3:#4ab8c8;--text:#f0ede8;--muted:#8888aa;--correct:#3fc87a;--wrong:#e05c3a;--r:16px}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden}
+    /* ── ANIMATED KNOWLEDGE BACKGROUND ──────────────────────── */
+    body::before{
+      content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+      background:
+        /* Gold glow — top left: represents enlightenment */
+        radial-gradient(ellipse 55% 45% at 10% 15%, rgba(240,192,64,.11) 0%, transparent 55%),
+        /* Cyan glow — bottom right: technology */
+        radial-gradient(ellipse 50% 50% at 90% 85%, rgba(74,184,200,.09) 0%, transparent 55%),
+        /* Orange glow — top right: energy */
+        radial-gradient(ellipse 40% 50% at 90% 10%, rgba(224,92,58,.07) 0%, transparent 50%),
+        /* Deep blue center: knowledge */
+        radial-gradient(ellipse 60% 60% at 50% 50%, rgba(30,40,80,.18) 0%, transparent 70%);
+    }
+    /* Animated geometric grid overlay — tech/education feel */
+    body::after{
+      content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+      background-image:
+        linear-gradient(rgba(240,192,64,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(240,192,64,.025) 1px, transparent 1px);
+      background-size:60px 60px;
+      mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+      -webkit-mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+      animation:gridpulse 8s ease-in-out infinite;
+    }
+    @keyframes gridpulse{
+      0%,100%{opacity:.4}
+      50%{opacity:1}
+    }
+    /* Floating knowledge particles (CSS only) */
+    .bg-particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+    .bp-dot{position:absolute;border-radius:50%;animation:floatup linear infinite;opacity:0}
+    @keyframes floatup{
+      0%{transform:translateY(100vh) scale(0);opacity:0}
+      10%{opacity:.6}
+      90%{opacity:.2}
+      100%{transform:translateY(-20vh) scale(1);opacity:0}
+    }
+    .cb{width:100%;background:rgba(240,192,64,.06);border-bottom:1px solid rgba(240,192,64,.15);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+    .cb-l{display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--muted)}
+    .cb-av{width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0}
+    .cb-av img{width:100%;height:100%;object-fit:cover}
+    .cb-cn{color:var(--accent);font-weight:700;font-family:'Syne',sans-serif}
+    .lang-sw{display:flex;gap:4px;background:rgba(255,255,255,.05);border-radius:8px;padding:3px}
+    .lang-btn{padding:4px 10px;border-radius:6px;border:none;background:transparent;color:var(--muted);font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;cursor:pointer;transition:all .2s;text-transform:uppercase}
+    .lang-btn.active{background:var(--accent);color:#0a0a0f}
+    .wrap{position:relative;z-index:1;width:100%;max-width:720px;padding:24px 16px 80px}
+    header{text-align:center;padding:32px 0 24px}
+    .logo{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,6vw,3.2rem);font-weight:800;letter-spacing:-2px;line-height:1}
+    .logo span:first-child{color:var(--accent)}.logo span:last-child{color:var(--text)}
+    .tagline{font-size:clamp(.8rem,2.5vw,.95rem);color:var(--muted);margin-top:8px;font-weight:300;letter-spacing:.08em;text-transform:uppercase}
+    .sc{display:none;animation:fu .4s ease}.sc.on{display:block}
+    @keyframes fu{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .stit{font-family:'Syne',sans-serif;font-size:clamp(1rem,3vw,1.3rem);font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+    .stit::before{content:'';display:inline-block;width:4px;height:1.2em;background:var(--accent);border-radius:2px}
+    .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:10px;margin-bottom:24px}
+    .cbtn{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:16px 12px;cursor:pointer;text-align:center;transition:all .2s;color:var(--text);font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:500}
+    .cbtn .ic{font-size:1.7rem;display:block;margin-bottom:6px}
+    .cbtn:hover,.cbtn.on{border-color:var(--accent);background:rgba(240,192,64,.08);transform:translateY(-2px);box-shadow:0 8px 24px rgba(240,192,64,.12)}
+    .cbtn.on{background:rgba(240,192,64,.12)}
+    .drow{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+    .dbtn{flex:1;min-width:85px;padding:11px;border-radius:10px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);font-family:'Outfit',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.05em}
+    .dbtn:hover{border-color:var(--accent3);color:var(--accent3)}
+    .dbtn.on{border-color:var(--accent3);color:var(--accent3);background:rgba(74,184,200,.1)}
+    .bp{width:100%;padding:17px;background:var(--accent);color:#0a0a0f;border:none;border-radius:var(--r);font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.04em;transition:all .2s;text-transform:uppercase}
+    .bp:hover{background:#f8d060;transform:translateY(-2px);box-shadow:0 10px 30px rgba(240,192,64,.25)}
+    .bp:disabled{opacity:.4;cursor:not-allowed;transform:none}
+    .bs{padding:11px 22px;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:all .2s}
+    .bs:hover{border-color:var(--muted);color:var(--text)}
+    .qh{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;gap:12px}
+    .qi{font-family:'Syne',sans-serif;font-size:.83rem;color:var(--muted);font-weight:600;white-space:nowrap}
+    .qi span{color:var(--accent)}
+    .pb{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+    .pf{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width .5s ease}
+    .sb{font-family:'Syne',sans-serif;font-size:.83rem;font-weight:700;color:var(--accent3);background:rgba(74,184,200,.1);border:1px solid rgba(74,184,200,.25);padding:5px 12px;border-radius:20px;white-space:nowrap}
+    .tw{display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+    .tr{position:relative;width:60px;height:60px}
+    .tr svg{transform:rotate(-90deg)}
+    .tr circle{fill:none;stroke-width:4}
+    .tr .bg{stroke:var(--border)}
+    .tr .tp{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset 1s linear}
+    .tr .ug{stroke:var(--wrong)}
+    .tn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:1rem;font-weight:700}
+    .qcard{background:linear-gradient(145deg,var(--card),rgba(26,26,38,.95));border:1.5px solid var(--border);border-radius:20px;padding:clamp(18px,5vw,30px);margin-bottom:18px;box-shadow:0 4px 24px rgba(0,0,0,.3),inset 0 1px 0 rgba(240,192,64,.06)}
+    .qm{font-size:.76rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;font-weight:500}
+    .qm .ct{color:var(--accent);background:rgba(240,192,64,.1);padding:3px 10px;border-radius:20px;margin-right:8px}
+    .qt{font-family:'Syne',sans-serif;font-size:clamp(.98rem,3.5vw,1.22rem);font-weight:600;line-height:1.5;color:var(--text)}
+    .ol{display:flex;flex-direction:column;gap:9px;margin-bottom:22px}
+    .ob{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:15px 18px;cursor:pointer;text-align:left;color:var(--text);font-family:'Outfit',sans-serif;font-size:clamp(.88rem,2.5vw,.98rem);font-weight:400;transition:all .2s;display:flex;align-items:center;gap:12px;line-height:1.4}
+    .olt{min-width:30px;height:30px;border-radius:8px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;flex-shrink:0;transition:all .2s}
+    .ob:hover:not(:disabled){border-color:var(--accent);background:rgba(240,192,64,.06);transform:translateX(4px)}
+    .ob:hover:not(:disabled) .olt{background:var(--accent);color:#0a0a0f;border-color:var(--accent)}
+    .ob.ok{border-color:var(--correct);background:rgba(63,200,122,.1)}
+    .ob.ok .olt{background:var(--correct);color:#0a0a0f;border-color:var(--correct)}
+    .ob.ng{border-color:var(--wrong);background:rgba(224,92,58,.08)}
+    .ob.ng .olt{background:var(--wrong);color:#fff;border-color:var(--wrong)}
+    .ob:disabled{cursor:not-allowed}
+    /* Auto-advance bar */
+    .abar{height:4px;background:var(--border);border-radius:2px;margin-bottom:16px;overflow:hidden;display:none}
+    .abar.show{display:block}
+    .afill{height:100%;background:var(--accent);border-radius:2px;width:100%;transition:none}
+    .fb{display:none;padding:13px 18px;border-radius:12px;font-size:.88rem;font-weight:500;margin-bottom:16px;animation:fu .3s ease}
+    .fb.on{display:flex;align-items:center;gap:10px}
+    .fb.ok{background:rgba(63,200,122,.12);border:1px solid rgba(63,200,122,.3);color:var(--correct)}
+    .fb.ng{background:rgba(224,92,58,.1);border:1px solid rgba(224,92,58,.25);color:var(--accent2)}
+    .rw{text-align:center}
+    .rring{position:relative;width:150px;height:150px;margin:0 auto 24px}
+    .rring svg{transform:rotate(-90deg)}
+    .rring circle{fill:none;stroke-width:10}
+    .rring .bg{stroke:var(--border)}
+    .rring .pg{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset 1.5s ease}
+    .rctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .rpct{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--accent)}
+    .rlb{font-size:.73rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+    .rtit{font-family:'Syne',sans-serif;font-size:clamp(1.5rem,5vw,2rem);font-weight:800;margin-bottom:8px}
+    .rsub{color:var(--muted);font-size:.95rem;margin-bottom:28px}
+    .sg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px}
+    .sb2{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 8px;text-align:center}
+    .sv{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;display:block}
+    .sk{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+    .sb2:nth-child(1) .sv{color:var(--correct)}.sb2:nth-child(2) .sv{color:var(--wrong)}.sb2:nth-child(3) .sv{color:var(--accent3)}
+    .rbts{display:flex;flex-direction:column;gap:10px}
+    .lbl{margin-bottom:22px}
+    .li{display:flex;align-items:center;gap:12px;padding:13px 15px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:7px}
+    .li.top{border-color:rgba(240,192,64,.35);background:rgba(240,192,64,.05)}
+    .lr{font-family:'Syne',sans-serif;font-weight:800;font-size:.98rem;color:var(--muted);min-width:26px;text-align:center}
+    .lr.g{color:#f0c040}.lr.s{color:#c0c0c0}.lr.b{color:#cd7f32}
+    .lif{flex:1}.ln{font-weight:600;font-size:.93rem}.lm{font-size:.73rem;color:var(--muted);margin-top:2px}
+    .ls{font-family:'Syne',sans-serif;font-weight:700;color:var(--accent);font-size:.93rem}
+    .lem{text-align:center;color:var(--muted);padding:28px;font-size:.88rem}
+    .nw{margin-bottom:22px}
+    .nw label{display:block;font-size:.83rem;color:var(--muted);margin-bottom:7px;text-transform:uppercase;letter-spacing:.08em}
+    .ni{width:100%;padding:13px 15px;background:var(--card);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'Outfit',sans-serif;font-size:1rem;outline:none;transition:border-color .2s}
+    .ni:focus{border-color:var(--accent)}.ni::placeholder{color:var(--muted)}
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card);border:1px solid var(--accent);color:var(--accent);padding:11px 22px;border-radius:30px;font-family:'Syne',sans-serif;font-size:.86rem;font-weight:600;z-index:1000;transition:transform .3s ease;white-space:nowrap}
+    .toast.on{transform:translateX(-50%) translateY(0)}
+    .ntabs{display:flex;gap:5px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:5px;margin-bottom:22px}
+    .ntab{flex:1;padding:9px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.05em}
+    .ntab.on{background:var(--accent);color:#0a0a0f}
+    .rfb{background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 13px;font-size:.78rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;margin-bottom:14px}
+    .rfb:hover{border-color:var(--accent3);color:var(--accent3)}
+    @media(max-width:480px){.cgrid{grid-template-columns:repeat(2,1fr)}.sg{grid-template-columns:repeat(3,1fr)}}
+    /* ── STREAK TOAST ──────────────────────────────────────── */
+    .streak-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:linear-gradient(135deg,#f0c040,#e05c3a);color:#0a0a0f;padding:16px 28px;border-radius:24px;font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;z-index:2000;pointer-events:none;box-shadow:0 8px 40px rgba(240,192,64,.5);transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s}
+    .streak-toast.show{transform:translate(-50%,-50%) scale(1)}
+    .streak-toast.hide{transform:translate(-50%,-50%) scale(0);opacity:0}
+
+    /* ── EVENT BADGE ───────────────────────────────────────── */
+    #ev-badge{display:none;background:linear-gradient(135deg,rgba(240,192,64,.2),rgba(224,92,58,.15));border:1.5px solid rgba(240,192,64,.4);color:var(--accent);font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;padding:8px 14px;border-radius:10px;margin-bottom:12px;text-align:center;animation:fu .4s ease}
+
+    /* ── REWARD MODAL ──────────────────────────────────────── */
+    #reward-modal{display:none;position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px}
+    #reward-modal.show{display:flex;animation:fu .35s ease}
+    .reward-box{background:var(--card);border:1.5px solid rgba(240,192,64,.4);border-radius:24px;padding:32px 24px;width:100%;max-width:380px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+    .reward-icon{font-size:3rem;margin-bottom:12px;animation:bounce .6s ease infinite alternate}
+    @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+    .reward-title{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--accent);margin-bottom:8px}
+    .reward-form{display:none;margin-top:16px;gap:10px;flex-direction:column}
+    .reward-form.show{display:flex}
+    .ri{width:100%;padding:13px 15px;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'Outfit',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s}
+    .ri:focus{border-color:var(--accent)}
+    .ri::placeholder{color:var(--muted)}
+    .reward-skip-btn{background:none;border:none;color:var(--muted);font-size:.82rem;cursor:pointer;margin-top:8px;font-family:'Outfit',sans-serif;text-decoration:underline}
+    .reward-skip-btn:hover{color:var(--text)}
+
+    /* ── FOOTER ────────────────────────────────────────────── */
+    footer{width:100%;max-width:720px;padding:24px 16px 32px;margin-top:16px;border-top:1px solid var(--border)}
+    .footer-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+    .ft-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:.78rem;cursor:pointer;transition:all .2s}
+    .ft-btn.on{border-color:var(--accent);color:var(--accent);background:rgba(240,192,64,.08)}
+    .footer-content{display:none;font-size:.8rem;color:var(--muted);line-height:1.7;padding:12px 14px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid var(--border)}
+    .footer-content.show{display:block;animation:fu .3s ease}
+    .footer-copy{text-align:center;font-size:.72rem;color:var(--muted);margin-top:14px;opacity:.5}
+
+    /* ── PWA INSTALL BANNER ────────────────────────────────── */
+    #pwa-banner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;padding:0 16px 16px;animation:slideup .4s ease}
+    #pwa-banner.show{display:block}
+    @keyframes slideup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+    .pwa-inner{background:linear-gradient(135deg,var(--card),var(--surface));border:1.5px solid rgba(240,192,64,.3);border-radius:20px;padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 -4px 30px rgba(0,0,0,.4)}
+    .pwa-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#f0c040,#e05c3a);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-weight:800;font-size:.9rem;color:#0a0a0f;flex-shrink:0}
+    .pwa-text{flex:1}
+    .pwa-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.92rem;color:var(--text);margin-bottom:2px}
+    .pwa-desc{font-size:.75rem;color:var(--muted);line-height:1.4}
+    .pwa-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+    .pwa-install-btn{background:var(--accent);color:#0a0a0f;border:none;border-radius:10px;padding:8px 14px;font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s}
+    .pwa-install-btn:hover{background:#f8d060;transform:translateY(-1px)}
+    .pwa-later-btn{background:transparent;color:var(--muted);border:none;font-family:'Outfit',sans-serif;font-size:.72rem;cursor:pointer;text-align:center;padding:2px}
+    .pwa-later-btn:hover{color:var(--text)}
+    /* PWA instruction modal */
+    #pwa-modal{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);align-items:flex-end;justify-content:center;padding:16px}
+    #pwa-modal.show{display:flex;animation:fu .3s ease}
+    .pwa-modal-box{background:var(--card);border:1.5px solid rgba(240,192,64,.3);border-radius:20px 20px 20px 20px;padding:24px;width:100%;max-width:420px}
+    .pwa-modal-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:var(--accent);margin-bottom:16px;text-align:center}
+    .pwa-step{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+    .pwa-step:last-of-type{border-bottom:none}
+    .pwa-step-num{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#0a0a0f;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:.78rem;flex-shrink:0}
+    .pwa-step-text{font-size:.85rem;color:var(--text);line-height:1.5}
+    #pwa-close-modal{width:100%;margin-top:16px;padding:12px;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s}
+    #pwa-close-modal:hover{border-color:var(--accent);color:var(--accent)}
+
+    /* ── LANGUAGE SELECTION SCREEN ─────────────────────────── */
+    #lang-screen{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;animation:ls-in .5s ease}
+    #lang-screen.hidden{animation:ls-out .4s ease forwards}
+    @keyframes ls-in{from{opacity:0}to{opacity:1}}
+    @keyframes ls-out{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(1.04)}}
+    .ls-bg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 30%,rgba(240,192,64,.09) 0%,transparent 65%),radial-gradient(ellipse 50% 60% at 80% 80%,rgba(74,184,200,.07) 0%,transparent 60%);pointer-events:none}
+    .ls-inner{position:relative;z-index:1;width:100%;max-width:400px;text-align:center}
+    .ls-logo{font-family:'Syne',sans-serif;font-size:clamp(2.2rem,8vw,3.6rem);font-weight:800;letter-spacing:-2px;line-height:1;margin-bottom:8px}
+    .ls-logo span:first-child{color:var(--accent)}.ls-logo span:last-child{color:var(--text)}
+    .ls-sub{font-size:.8rem;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:48px;font-weight:300}
+    .ls-title{font-family:'Syne',sans-serif;font-size:clamp(.88rem,2.5vw,1rem);font-weight:600;color:var(--muted);margin-bottom:20px;letter-spacing:.06em}
+    .ls-btns{display:flex;flex-direction:column;gap:12px}
+    .ls-btn{display:flex;align-items:center;gap:16px;padding:18px 24px;background:var(--card);border:1.5px solid var(--border);border-radius:16px;cursor:pointer;transition:all .22s cubic-bezier(.4,0,.2,1);color:var(--text);font-family:'Outfit',sans-serif;width:100%;text-align:left;position:relative;overflow:hidden}
+    .ls-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(240,192,64,.06),transparent);opacity:0;transition:opacity .2s}
+    .ls-btn:hover{border-color:var(--accent);transform:translateX(6px) translateY(-1px);box-shadow:0 8px 28px rgba(240,192,64,.14)}
+    .ls-btn:hover::before{opacity:1}
+    .ls-btn:active{transform:translateX(3px) translateY(0)}
+    .ls-flag{font-size:1.9rem;flex-shrink:0}
+    .ls-btn-text{flex:1}
+    .ls-btn-name{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;display:block}
+    .ls-btn-sub{font-size:.75rem;color:var(--muted);display:block;margin-top:2px}
+    .ls-arr{color:var(--muted);font-size:1.1rem;transition:transform .2s, color .2s}
+    .ls-btn:hover .ls-arr{transform:translateX(4px);color:var(--accent)}
+    .ls-footer{margin-top:36px;font-size:.72rem;color:var(--muted);opacity:.6}
+    .ls-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--accent);margin:0 6px;vertical-align:middle}
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     LANGUAGE SELECTION SCREEN
+     Afiche sèlman si pa gen lang nan localStorage
+     Lojik: reutilize _sl() ki deja egziste — pa nouvo kòd
+═══════════════════════════════════════════════════════ -->
+<div id="lang-screen">
+  <div class="ls-bg"></div>
+  <div class="ls-inner">
+    <div class="ls-logo" id="ls-logo-text"><span>SEPTA</span><span>QUIZ</span></div>
+    <p class="ls-sub" id="ls-subtitle">World Trivia Challenge</p>
+    <p style="font-size:.72rem;color:var(--muted);margin-top:-36px;margin-bottom:36px;letter-spacing:.12em;text-transform:uppercase;opacity:.7">by <strong style="color:var(--accent);font-family:Syne,sans-serif">Septech</strong></p>
+    <p class="ls-title">Choose your language / Choisissez votre langue</p>
+    <div class="ls-btns">
+      <button class="ls-btn" onclick="_pickLang('en')">
+        <span class="ls-flag">🇺🇸</span>
+        <span class="ls-btn-text">
+          <span class="ls-btn-name">English</span>
+          <span class="ls-btn-sub" data-ls-lang="en">10 categories · 3 difficulty levels</span>
+        </span>
+        <span class="ls-arr">›</span>
+      </button>
+      <button class="ls-btn" onclick="_pickLang('fr')">
+        <span class="ls-flag">🇫🇷</span>
+        <span class="ls-btn-text">
+          <span class="ls-btn-name">Français</span>
+          <span class="ls-btn-sub" data-ls-lang="fr">10 catégories · 3 niveaux de difficulté</span>
+        </span>
+        <span class="ls-arr">›</span>
+      </button>
+      <button class="ls-btn" onclick="_pickLang('ht')">
+        <span class="ls-flag">🇭🇹</span>
+        <span class="ls-btn-text">
+          <span class="ls-btn-name">Kreyòl Ayisyen</span>
+          <span class="ls-btn-sub" data-ls-lang="ht">10 kategori · 3 nivo difikilte</span>
+        </span>
+        <span class="ls-arr">›</span>
+      </button>
+    </div>
+    <p class="ls-footer">
+      <span class="ls-dot"></span>Un produit <strong style="color:var(--accent)">Septech</strong><span class="ls-dot"></span>
+    </p>
+  </div>
+</div>
+
+<!-- CREATOR BAR -->
+<div class="cb">
+  <div class="cb-l">
+    <div class="cb-av" style="background:linear-gradient(135deg,#f0c040,#e05c3a);display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-weight:800;font-size:.65rem;color:#0a0a0f;letter-spacing:-.5px">SQ</div>
+    <span style="color:var(--accent);font-family:Syne,sans-serif;font-weight:800;font-size:.85rem;letter-spacing:-.5px">SeptaQuiz</span>
+    <span style="color:var(--border);margin:0 4px">·</span>
+    <span id="brand-tagline" style="font-size:.75rem;color:var(--muted)">Un produit Septech</span>
+  </div>
+  <!-- Langue choisie — affichée comme badge, clic pour revenir à la sélection -->
+  <button id="lang-badge" onclick="_changeLang()" style="background:rgba(240,192,64,.12);border:1px solid rgba(240,192,64,.3);color:var(--accent);font-family:Syne,sans-serif;font-size:.72rem;font-weight:700;padding:4px 12px;border-radius:20px;cursor:pointer;letter-spacing:.06em;transition:all .2s" title="Change language"></button>
+</div>
+
+<div class="wrap">
+  <header>
+    <div class="logo"><span>SEPTA</span><span>QUIZ</span></div>
+    <p class="tagline" data-t="tagline">Teste konesans ou sou tout sijè</p>
+  </header>
+
+  <!-- HOME -->
+  <div id="s0" class="sc on">
+    <!-- ═══════════════════════════════════
+         ZONE PUBLICITAIRE HAUT DE PAGE
+         Remplacez ce div par votre code AdSense banniere 320x50 ou 728x90
+         Type: "Bannière en-tête" dans AdSense
+    ═══════════════════════════════════ -->
+    <div id="ad-top" style="width:100%;text-align:center;min-height:50px;margin-bottom:12px;background:rgba(255,255,255,0.03);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px dashed rgba(255,255,255,0.08)">
+      <!-- ADSENSE BANNIERE ICI -->
+    </div>
+
+    <div class="ntabs">
+      <button class="ntab on" onclick="_tab('p')" data-t="play">🎮 Jwe</button>
+      <button class="ntab" onclick="_tab('l')" data-t="rank">🏆 Klasman</button>
+      <button class="ntab" onclick="_tab('m')" data-t="month_tab">🥇 Mwa</button>
+    </div>
+    <div id="pTab">
+      <div class="nw">
+        <label data-t="yourname">Non ou</label>
+        <input type="text" class="ni" id="pName" maxlength="30" data-t-ph="namepl"/>
+      </div>
+      <p class="stit" data-t="pickcat">Chwazi yon Kategori</p>
+      <div class="cgrid" id="cg"></div>
+      <p class="stit" data-t="pickdiff">Nivo Difikilte</p>
+      <div class="drow">
+        <button class="dbtn on" data-d="easy" onclick="_dd(this)" data-t="easy">Fasil</button>
+        <button class="dbtn" data-d="medium" onclick="_dd(this)" data-t="medium">Mwayen</button>
+        <button class="dbtn" data-d="hard" onclick="_dd(this)" data-t="hard">Difisil</button>
+      </div>
+      <button class="bp" onclick="_go()" data-t="start">Kòmanse Jwèt →</button>
+    </div>
+    <div id="lTab" style="display:none">
+      <p class="stit" id="lb-stit" data-t="topplayers">🌍 Top Jwè Mondyal</p>
+      <button class="rfb" onclick="_rl()" data-t="refresh_lb">↻ Rafraîchi</button>
+      <div class="lbl" id="lb"><div class="lem" data-t="loading">Chajman...</div></div>
+    </div>
+
+    <!-- ONGLET: CLASSEMENT MENSUEL -->
+    <div id="mTab" style="display:none">
+      <!-- Compte à rebours prix du mois -->
+      <div id="prize-banner" style="background:linear-gradient(135deg,rgba(240,192,64,0.15),rgba(224,92,58,0.1));border:1px solid rgba(240,192,64,0.3);border-radius:14px;padding:16px;margin-bottom:18px;text-align:center">
+        <div style="font-size:1.4rem;margin-bottom:4px">🏆</div>
+        <div style="font-family:Syne,sans-serif;font-weight:700;color:var(--accent);font-size:1rem" id="prize-title" data-t="prize_title">Pi bon jwè mwa a</div>
+        <div style="color:var(--muted);font-size:.82rem;margin-top:6px" id="prize-countdown">Chajman...</div>
+        <div style="margin-top:10px;font-size:.8rem;color:var(--muted)" id="current-leader"></div>
+      </div>
+      <p class="stit" data-t="monthly_top">🌍 Top 10 — Mwa Sa A</p>
+      <button class="rfb" onclick="_rm()" data-t="refresh_lb">↻ Rafraîchi</button>
+      <div class="lbl" id="mlb"><div class="lem" data-t="loading">Chajman...</div></div>
+
+      <!-- ═══════════════════════════════════
+           ZONE PUBLICITAIRE CLASSEMENT MENSUEL
+           Remplacez par bannière AdSense 300x250 (rectangle moyen)
+           Type: "Rectangle moyen" dans AdSense
+      ═══════════════════════════════════ -->
+      <div id="ad-monthly" style="width:100%;text-align:center;min-height:100px;margin-top:16px;background:rgba(255,255,255,0.03);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px dashed rgba(255,255,255,0.08)">
+        <!-- ADSENSE RECTANGLE ICI -->
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="s1" class="sc">
+    <div class="qh">
+      <div class="qi"><span data-t="question">Kesyon</span> <span id="qn">1</span>/<span id="qt">20</span></div>
+      <div class="pb"><div class="pf" id="pf"></div></div>
+      <div class="sb">⭐ <span id="qs">0</span></div>
+    </div>
+    <div class="tw">
+      <div class="tr">
+        <svg width="60" height="60" viewBox="0 0 60 60">
+          <circle class="bg" cx="30" cy="30" r="26"/>
+          <circle class="tp" id="tc" cx="30" cy="30" r="26" stroke-dasharray="163.4" stroke-dashoffset="0"/>
+        </svg>
+        <div class="tn" id="tn">20</div>
+      </div>
+    </div>
+    <div class="qcard">
+      <div class="qm"><span class="ct" id="qcat"></span><span id="qdf"></span></div>
+      <p class="qt" id="qtxt">...</p>
+    </div>
+    <div id="ev-badge"></div>
+    <div class="ol" id="olist"></div>
+    <div class="fb" id="fb"></div>
+    <!-- Auto-advance bar -->
+    <div class="abar" id="abar"><div class="afill" id="afill"></div></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="s2" class="sc">
+    <div class="rw">
+      <div class="rring">
+        <svg width="150" height="150" viewBox="0 0 150 150">
+          <circle class="bg" cx="75" cy="75" r="65"/>
+          <circle class="pg" id="rc" cx="75" cy="75" r="65" stroke-dasharray="408.4" stroke-dashoffset="408.4"/>
+        </svg>
+        <div class="rctr">
+          <span class="rpct" id="rpct">0%</span>
+          <span class="rlb" data-t="score">Nòt</span>
+        </div>
+      </div>
+      <div class="rtit" id="rtit">Bravo!</div>
+      <p class="rsub" id="rsub"></p>
+      <div class="sg">
+        <div class="sb2"><span class="sv" id="scor">0</span><div class="sk" id="sk-correct" data-t="correct">✅ Bon</div></div>
+        <div class="sb2"><span class="sv" id="swrg">0</span><div class="sk" id="sk-wrong" data-t="wrong">❌ Mal</div></div>
+        <div class="sb2"><span class="sv" id="stim">0s</span><div class="sk" id="sk-time" data-t="time">⏱ Tan</div></div>
+      </div>
+      <!-- ═══════════════════════════════════
+           ZONE PUBLICITAIRE PAGE DE SCORE
+           Meilleur emplacement pour la monétisation !
+           Les utilisateurs regardent ici après chaque partie.
+           Remplacez par bannière AdSense 300x250 ou 320x100
+           Type: "Grand rectangle" dans AdSense
+      ═══════════════════════════════════ -->
+      <div id="ad-results" style="width:100%;text-align:center;min-height:90px;margin-bottom:20px;background:rgba(255,255,255,0.03);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px dashed rgba(240,192,64,0.15)">
+        <!-- ADSENSE APRE REZILTA ICI — Pi bon plas! -->
+      </div>
+
+      <div class="rbts">
+        <button class="bp" onclick="_go()" data-t="playagain">🔄 Jwe Ankò</button>
+        <button class="bs" onclick="_home()" style="width:100%" data-t="backhome">← Retounen Lakay</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="tst"></div>
+
+<!-- ── PWA INSTALL BANNER ─────────────────────────────────────── -->
+<div id="pwa-banner">
+  <div class="pwa-inner">
+    <div class="pwa-icon">SQ</div>
+    <div class="pwa-text">
+      <div class="pwa-title" id="pwa-banner-title">SeptaQuiz</div>
+      <div class="pwa-desc" id="pwa-banner-desc"></div>
+    </div>
+    <div class="pwa-actions">
+      <button class="pwa-install-btn" id="pwa-install-btn" onclick="_pwaInstall()"></button>
+      <button class="pwa-later-btn" id="pwa-later-btn" onclick="_pwaDismiss()"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PWA INSTRUCTION MODAL (iOS) ───────────────────────────── -->
+<div id="pwa-modal">
+  <div class="pwa-modal-box">
+    <div class="pwa-modal-title" id="pwa-modal-title">Installer SeptaQuiz</div>
+    <div id="pwa-steps"></div>
+    <button id="pwa-close-modal" onclick="_pwaCloseModal()">OK</button>
+  </div>
+</div>
+
+<!-- ── REWARD MODAL ──────────────────────────────────── -->
+<div id="reward-modal">
+  <div class="reward-box">
+    <div class="reward-icon">🎉</div>
+    <div class="reward-title" id="reward-title"></div>
+    <p style="color:var(--muted);font-size:.88rem;margin:8px 0 16px" id="reward-sub"></p>
+    <button class="bp" id="reward-claim-btn" onclick="_claimReward()" style="width:100%"></button>
+    <div class="reward-form" id="reward-form">
+      <input class="ri" id="reward-name-inp" type="text" maxlength="40"/>
+      <input class="ri" id="reward-phone-inp" type="tel" maxlength="20"/>
+      <button class="bp" onclick="_submitReward()" style="width:100%;font-size:.9rem;padding:14px" id="reward-submit-btn"></button>
+    </div>
+    <div id="reward-thanks-msg" style="display:none;color:var(--correct);font-weight:600;margin-top:12px;font-family:Syne,sans-serif"></div>
+    <button class="reward-skip-btn" id="reward-skip-btn" onclick="_skipReward()"></button>
+  </div>
+</div>
+
+<!-- ── STREAK TOAST ───────────────────────────────────── -->
+<div class="streak-toast" id="streak-toast"></div>
+
+<!-- ── FOOTER ─────────────────────────────────────────── -->
+<footer id="site-footer">
+  <div class="footer-tabs">
+    <button class="ft-btn" id="ft-terms" onclick="_ftab('terms')"></button>
+    <button class="ft-btn" id="ft-privacy" onclick="_ftab('privacy')"></button>
+    <button class="ft-btn" id="ft-legal" onclick="_ftab('legal')"></button>
+  </div>
+  <div class="footer-content" id="fc-terms"></div>
+  <div class="footer-content" id="fc-privacy"></div>
+  <div class="footer-content" id="fc-legal"></div>
+  <p class="footer-copy">© 2025 <strong style="color:var(--accent)">Septech</strong> · SeptaQuiz — All rights reserved</p>
+</footer>
+
+
+
+<script>
+// ── TRADIKSYON ────────────────────────────────────────────────────────────────
+const _T={
+  ht:{
+    by:"Kreye pa",tagline:"Teste konesans ou sou tout sijè",
+    play:"🎮 Jwe",rank:"🏆 Klasman",yourname:"Non ou",namepl:"Ekri non ou...",
+    pickcat:"Chwazi yon Kategori",pickdiff:"Nivo Difikilte",
+    easy:"Fasil",medium:"Mwayen",hard:"Difisil",
+    start:"Kòmanse Jwèt →",topplayers:"🌍 Top Jwè Mondyal",refresh:"↻ Rafraîchi",
+    loading:"Chajman...",question:"Kesyon",score:"Nòt",
+    correct:"✅ Bon",wrong:"❌ Mal",time:"⏱ Tan",
+    playagain:"🔄 Jwe Ankò",backhome:"← Retounen Lakay",
+    noname:"Tanpri ekri non ou!",nocat:"Chwazi yon kategori!",
+    connerr:"Erè koneksyon. Eseye ankò.",timesup:"Tan ou fini! ⏰",
+    excellent:"Ekselan!",pts:"pwen",correct_ans:"Repons kòrèk:",
+    next:"Pwochen Kesyon →",results:"Wè Rezilta →",
+    genius:"🏆 Jeni!",genius_s:"Ou ekselan! Pa gen moun ki ka bat ou.",
+    bravo:"🌟 Bravo!",bravo_s:"Ou fè yon trè bon pèfòmans!",
+    notbad:"👍 Pa mal!",notbad_s:"Kontinye pratike, ou pral vin miyò.",
+    learn:"📚 Aprann!",learn_s:"Pa dekouraje, lekti ap ede ou.",
+    lbempty:"Pa gen ankò jwè. Kòmanse jwe!",lberr:"Pa ka chaje klasman.",
+    prize_title:"Pi bon jwè mwa a",monthly_top:"🌍 Top 10 — Mwa Sa A",month_tab:"🥇 Mwa",
+    page_title:"Jwèt Quiz Gratis",
+    install_app:"📲 Enstale App la",days_left:"jou rete nan mwa sa a",
+    last_days:"⚠️ Plis ke {n} jou rete pou genyen pri mwa a!",
+    last_day:"🎊 Dènye jou mwa a! Jwe kounye a!",
+    current_leader:"👑 Lidè kounye a:",pts_label:"pwen",
+    no_leader:"Pa gen lidè encore — ou ka premye!",
+    no_monthly:"Pa gen ankò jwè mwa sa a. Kòmanse jwe!",
+    err_monthly:"Pa ka chaje klasman mwa a.",
+    refresh_lb:"↻ Rafraîchi",topplayers:"🌍 Top Jwè Mondyal",refresh:"↻ Rafraîchi",
+    brand_tagline:"Yon pwodui Septech",
+    score77:"🏆 Pafè! Ou se yon jeniyis!",score67:"🔥 Ekselan! Trè enpresyonan!",score57:"👏 Trè bon skor! Kontinye konsa!",score47:"🙂 Bon efò! Ou ka fè pi mye!",score37:"💪 Pa mal! Kontinye pwogrese!",score27:"📚 Kontinye aprann epi eseye ankò!",
+    streak3:"🔥 Seri x3! Bon travay!",streak5:"⚡ Seri x5! Ou se yon bèt!",streak_bonus:"Bonus seri!",
+    event_bonus:"⭐ KESYON BONUS — Pwen doub!",event_lucky:"🍀 KESYON CHANS!",event_double:"💥 PWEN DOUB!",
+    reward_unlock:"🎉 Ou debloke yon rekonpans espesyal!",reward_claim:"Resevwa Rekonpans",reward_name:"Non ou",reward_phone:"Nimewo telefòn",reward_submit:"Soumèt",reward_thanks:"Mèsi! Nou pral kontakte ou.",reward_skip:"Kontinye san rekonpans",
+    q_label:"Kesyon",footer_terms:"Kondisyon Itilizasyon",footer_privacy:"Politik Konfidyalite",
+    footer_terms_text:"App sa a se pou divètisman ak aprantisaj. Rekonpans yo opsyonèl e selon disponibilite. Pa bezwen achte anyen pou jwe.",
+    footer_privacy_text:"Kèk done opsyonèl ka kolekte. Done itilizatè yo pa vann ni pataje.",
+    install_tip:"Klike 'Pataje' epi 'Ajoute sou Ekran Dakèy'",
+    install_android:"Klike menu ⋮ epi 'Enstale App'",
+    install_title:"Enstale SeptaQuiz",
+    install_desc:"Ajoute SeptaQuiz sou ekran dakèy ou pou aksè rapid san navigatè.",
+    install_btn:"📲 Enstale Kounye a",
+    install_later:"Pi Devan",
+    pwa_ios:"📱 iOS: Pataje → Ajoute sou Ekran Dakèy",
+    pwa_android:"📱 Android: Menu ⋮ → Enstale App",
+    legal_title:"Mentions Légales",
+    legal_text:"SeptaQuiz se yon pwodui Septech. Tout dwa rezève. © 2025 Septech.",
+    cats:{geo:"Jewografi",sci:"Syans",hist:"Istwa",sport:"Espò",tech:"Teknoloji",art:"Kiltirèl",math:"Matematik",food:"Manje",animals:"Bèt",haiti:"Ayiti"},
+    diffs:{easy:"Fasil",medium:"Mwayen",hard:"Difisil"}
+  },
+  fr:{
+    by:"Créé par",tagline:"Testez vos connaissances sur tous les sujets",
+    play:"🎮 Jouer",rank:"🏆 Classement",yourname:"Votre nom",namepl:"Entrez votre nom...",
+    pickcat:"Choisir une Catégorie",pickdiff:"Niveau de Difficulté",
+    easy:"Facile",medium:"Moyen",hard:"Difficile",
+    start:"Commencer →",topplayers:"🌍 Top Joueurs Mondiaux",refresh:"↻ Actualiser",
+    loading:"Chargement...",question:"Question",score:"Score",
+    correct:"✅ Correct",wrong:"❌ Faux",time:"⏱ Temps",
+    playagain:"🔄 Rejouer",backhome:"← Retour Accueil",
+    noname:"Veuillez entrer votre nom!",nocat:"Choisissez une catégorie!",
+    connerr:"Erreur de connexion. Réessayez.",timesup:"Temps écoulé! ⏰",
+    excellent:"Excellent!",pts:"pts",correct_ans:"Bonne réponse:",
+    next:"Question suivante →",results:"Voir Résultats →",
+    genius:"🏆 Génie!",genius_s:"Vous êtes excellent! Personne ne peut vous battre.",
+    bravo:"🌟 Bravo!",bravo_s:"Vous avez fait une excellente performance!",
+    notbad:"👍 Pas mal!",notbad_s:"Continuez à pratiquer, vous allez vous améliorer.",
+    learn:"📚 Apprenez!",learn_s:"Ne vous découragez pas, la lecture va vous aider.",
+    lbempty:"Aucun joueur encore. Commencez à jouer!",lberr:"Impossible de charger le classement.",
+    prize_title:"Meilleur joueur du mois",monthly_top:"🌍 Top 10 — Ce mois-ci",month_tab:"🥇 Mois",
+    page_title:"Jeu de Quiz Gratuit",
+    install_app:"📲 Installer l'application",days_left:"jours restants ce mois",
+    last_days:"⚠️ Plus que {n} jours pour remporter le prix!",
+    last_day:"🎊 Dernier jour du mois! Jouez maintenant!",
+    current_leader:"👑 Leader actuel:",pts_label:"pts",
+    no_leader:"Aucun leader encore — vous pouvez être le premier!",
+    no_monthly:"Aucun joueur ce mois-ci. Commencez à jouer!",
+    err_monthly:"Impossible de charger le classement mensuel.",
+    refresh_lb:"↻ Actualiser",
+    brand_tagline:"Un produit Septech",
+    score77:"🏆 Parfait ! Tu es incroyable !",score67:"🔥 Excellent travail ! Très impressionnant !",score57:"👏 Très bon score ! Continue comme ça !",score47:"🙂 Bon effort ! Tu peux encore mieux faire !",score37:"💪 Pas mal ! Continue à progresser !",score27:"📚 Continue d'apprendre et réessaie !",
+    streak3:"🔥 Série x3 ! Bon travail !",streak5:"⚡ Série x5 ! Tu es en feu !",streak_bonus:"Bonus de série !",
+    event_bonus:"⭐ QUESTION BONUS — Points doublés !",event_lucky:"🍀 QUESTION CHANCE !",event_double:"💥 POINTS DOUBLES !",
+    reward_unlock:"🎉 Vous avez débloqué une récompense spéciale !",reward_claim:"Réclamer la récompense",reward_name:"Votre nom",reward_phone:"Numéro de téléphone",reward_submit:"Soumettre",reward_thanks:"Merci ! Nous vous contacterons.",reward_skip:"Continuer sans récompense",
+    q_label:"Question",footer_terms:"Conditions d'utilisation",footer_privacy:"Politique de confidentialité",
+    footer_terms_text:"Cette application est destinée au divertissement et à l'apprentissage. Les récompenses sont optionnelles et selon disponibilité. Aucun achat n'est nécessaire pour jouer.",
+    footer_privacy_text:"Certaines données optionnelles peuvent être collectées. Les données des utilisateurs ne sont ni vendues ni partagées.",
+    install_tip:"Appuyez sur 'Partager' puis 'Ajouter à l'écran d'accueil'",
+    install_android:"Appuyez sur le menu ⋮ puis 'Installer l'application'",
+    install_title:"Installer SeptaQuiz",
+    install_desc:"Ajoutez SeptaQuiz à votre écran d'accueil pour un accès rapide sans navigateur.",
+    install_btn:"📲 Installer maintenant",
+    install_later:"Plus tard",
+    pwa_ios:"📱 iOS : Partager → Ajouter à l'écran d'accueil",
+    pwa_android:"📱 Android : Menu ⋮ → Installer l'application",
+    legal_title:"Mentions légales",
+    legal_text:"SeptaQuiz est un produit Septech. Tous droits réservés. © 2025 Septech.",
+    cats:{geo:"Géographie",sci:"Sciences",hist:"Histoire",sport:"Sport",tech:"Technologie",art:"Culture",math:"Mathématiques",food:"Cuisine",animals:"Animaux",haiti:"Haïti"},
+    diffs:{easy:"Facile",medium:"Moyen",hard:"Difficile"}
+  },
+  en:{
+    by:"Created by",tagline:"Test your knowledge on all subjects",
+    play:"🎮 Play",rank:"🏆 Leaderboard",yourname:"Your name",namepl:"Enter your name...",
+    pickcat:"Choose a Category",pickdiff:"Difficulty Level",
+    easy:"Easy",medium:"Medium",hard:"Hard",
+    start:"Start Game →",topplayers:"🌍 Top Global Players",refresh:"↻ Refresh",
+    loading:"Loading...",question:"Question",score:"Score",
+    correct:"✅ Correct",wrong:"❌ Wrong",time:"⏱ Time",
+    playagain:"🔄 Play Again",backhome:"← Back Home",
+    noname:"Please enter your name!",nocat:"Choose a category!",
+    connerr:"Connection error. Try again.",timesup:"Time's up! ⏰",
+    excellent:"Excellent!",pts:"pts",correct_ans:"Correct answer:",
+    next:"Next Question →",results:"See Results →",
+    genius:"🏆 Genius!",genius_s:"You're excellent! Nobody can beat you.",
+    bravo:"🌟 Bravo!",bravo_s:"You had an excellent performance!",
+    notbad:"👍 Not bad!",notbad_s:"Keep practicing, you'll keep improving.",
+    learn:"📚 Keep learning!",learn_s:"Don't be discouraged, reading will help you.",
+    lbempty:"No players yet. Start playing!",lberr:"Cannot load leaderboard.",prize_title:"Best player this month",monthly_top:"🌍 Top 10 — This Month",month_tab:"🥇 Month",page_title:"Free Quiz Game",
+    brand_tagline:"A Septech product",score77:"🏆 Perfect! You are incredible!",score67:"🔥 Excellent work! Very impressive!",score57:"👏 Great score! Keep it up!",score47:"🙂 Good effort! You can do even better!",score37:"💪 Not bad! Keep progressing!",score27:"📚 Keep learning and try again!",
+    streak3:"🔥 Streak x3! Great job!",streak5:"⚡ Streak x5! You're on fire!",streak_bonus:"Streak bonus!",
+    event_bonus:"⭐ BONUS QUESTION — Double points!",event_lucky:"🍀 LUCKY QUESTION — All answers might be correct!",event_double:"💥 DOUBLE POINTS — Right now!",
+    reward_unlock:"🎉 You have unlocked a special reward!",reward_claim:"Claim Reward",reward_name:"Your name",reward_phone:"Phone number",reward_submit:"Submit",reward_thanks:"Thank you! We will contact you.",reward_skip:"Continue without reward",
+    q_label:"Question",footer_terms:"Terms of Use",footer_privacy:"Privacy Policy",footer_terms_text:"This application is for entertainment and learning. Rewards are optional and subject to availability. No purchase necessary to play.",footer_privacy_text:"Some optional data may be collected. User data is neither sold nor shared.",
+    install_tip:"Tap 'Share' then 'Add to Home Screen'",
+    install_android:"Tap menu ⋮ then 'Install App'",
+    install_title:"Install SeptaQuiz",
+    install_desc:"Add SeptaQuiz to your home screen for quick access without a browser.",
+    install_btn:"📲 Install now",
+    install_later:"Later",
+    pwa_ios:"📱 iOS: Share → Add to Home Screen",
+    pwa_android:"📱 Android: Menu ⋮ → Install App",
+    legal_title:"Legal Notice",
+    legal_text:"SeptaQuiz is a Septech product. All rights reserved. © 2025 Septech.",
+    cats:{geo:"Geography",sci:"Science",hist:"History",sport:"Sports",tech:"Technology",art:"Culture",math:"Mathematics",food:"Food",animals:"Animals",haiti:"Haiti"},
+    diffs:{easy:"Easy",medium:"Medium",hard:"Hard"}
+  }
+};
+
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  NOM DE L'APPLICATION — CHANGEZ ICI ET SEULEMENT ICI        ║
+// ║                                                              ║
+// ║  word1  → Premier mot (couleur or/accent)                    ║
+// ║  word2  → Deuxième mot (couleur blanc)                       ║
+// ║  fullname → Nom complet (utilisé dans le titre du navigateur)║
+// ║  subtitle → Sous-titre de l'écran de sélection de langue     ║
+// ╚══════════════════════════════════════════════════════════════╝
+const _APP = {
+  word1:    'SEPTA',            // ← MOT 1 (couleur or)
+  word2:    'QUIZ',             // ← MOT 2 (couleur blanc)
+  fullname: 'SeptaQuiz',        // ← Nom complet
+  subtitle: 'World Trivia Challenge', // ← Sous-titre écran langue
+  brand:    'Septech',          // ← Nom startup
+  tagline_brand: 'Un produit Septech' // ← Tagline branding
+};
+
+const _C=[
+  {i:'geo',e:'🌍'},{i:'sci',e:'🔬'},{i:'hist',e:'📜'},{i:'sport',e:'⚽'},
+  {i:'tech',e:'💻'},{i:'art',e:'🎨'},{i:'math',e:'➕'},{i:'food',e:'🍽️'},
+  {i:'animals',e:'🐘'},{i:'haiti',e:'🇭🇹'},
+];
+
+// ── ETAT ──────────────────────────────────────────────────────────────────────
+let _L='ht';
+let _x={
+  cat:null,dif:'easy',tok:null,tot:0,
+  scr:0,ok:0,ko:0,t0:0,
+  ti:null,tl:0,ans:false,
+  nq:null,nn:0,nt:0,done:false,
+  streak:0,          // consecutive correct answers
+  streakShown:false, // prevent double-showing streak
+  event:null,        // 'bonus'|'double'|'lucky' — surprise event
+  eventQ:null,       // which q number gets the event
+  sessionKey:null,   // anti-abuse: unique session key
+  rewardShown:false  // reward modal shown once per game
+};
+
+// ── LANG ──────────────────────────────────────────────────────────────────────
+function _sl(l){
+  _L=l;
+  document.documentElement.lang=l;
+  _ut();
+  _updateFooter();
+}
+function _ut(){
+  const t=_T[_L];
+
+  // 1. Tout élément data-t (gjeneral)
+  document.querySelectorAll('[data-t]').forEach(el=>{
+    const k=el.getAttribute('data-t');
+    if(t[k]!==undefined) el.textContent=t[k];
+  });
+
+  // 2. Placeholders (input fields)
+  document.querySelectorAll('[data-t-ph]').forEach(el=>{
+    const k=el.getAttribute('data-t-ph');
+    if(t[k]!==undefined) el.placeholder=t[k];
+  });
+
+  // 3. Kategori bouton yo
+  document.querySelectorAll('.cbtn').forEach(b=>{
+    const id=b.dataset.i;
+    const cl=b.querySelector('.cl');
+    if(id&&cl&&t.cats[id]) cl.textContent=t.cats[id];
+  });
+
+  // 4. Bouton difikilte
+  document.querySelectorAll('.dbtn').forEach(b=>{
+    const d=b.dataset.d;
+    if(d&&t[d]) b.textContent=t[d];
+  });
+
+  // 5. Logo prensipal + tagline
+  const logo=document.querySelector('#s0 ~ * .logo, .logo');
+  if(logo) logo.innerHTML=`<span>${_APP.word1}</span> <span>${_APP.word2}</span>`;
+  const tag=document.querySelector('.tagline');
+  if(tag) tag.textContent=t.tagline;
+
+  // 6. Creator bar — "Kreye pa / Créé par / Created by"
+  const bySpan=document.querySelector('[data-t="by"]');
+  if(bySpan) bySpan.textContent=' '+t.by+' ';
+
+  // 7. Onglet "Mwa" — 3yèm tab
+  document.querySelectorAll('.ntab').forEach((b,i)=>{
+    if(i===0&&t.play) b.textContent=t.play;
+    if(i===1&&t.rank) b.textContent=t.rank;
+    if(i===2&&t.month_tab) b.textContent=t.month_tab;
+  });
+
+  // 8. Leaderboard global title
+  const lbStit=document.getElementById('lb-stit');
+  if(lbStit) lbStit.textContent=t.topplayers||'';
+
+  // 9. Prize banner + titre klasman mansyèl
+  const pt=document.getElementById('prize-title');
+  if(pt) pt.textContent=t.prize_title||'';
+  const mTitle=document.getElementById('monthly-stit');
+  if(mTitle) mTitle.textContent=t.monthly_top||'';
+
+  // 10. Bouton "Rafraîchi" yo tou de
+  document.querySelectorAll('.rfb').forEach(b=>{
+    if(t.refresh) b.textContent=t.refresh;
+  });
+
+  // 10. Titre navigatè (browser tab)
+  document.title=_APP.fullname+' – '+(t.page_title||'Free Quiz Game');
+
+  // 11. Feedback bar si li visible — pa retradui kontan dinamik
+  // (handled in _sfb directly with _t())
+
+  // 12. Empty leaderboard messages
+  const lbEl=document.getElementById('lb');
+  if(lbEl&&lbEl.querySelector('.lem')) lbEl.querySelector('.lem').textContent=t.loading||'';
+  const mlbEl=document.getElementById('mlb');
+  if(mlbEl&&mlbEl.querySelector('.lem')) mlbEl.querySelector('.lem').textContent=t.loading||'';
+
+  // 13. Rezilta ekran — bouton yo deja gen data-t, men score label
+  const rlb=document.querySelector('.rlb');
+  if(rlb) rlb.textContent=t.score||'';
+  const skC=document.getElementById('sk-correct'); if(skC) skC.textContent=t.correct||'';
+  const skW=document.getElementById('sk-wrong');   if(skW) skW.textContent=t.wrong||'';
+  const skT=document.getElementById('sk-time');    if(skT) skT.textContent=t.time||'';
+
+  // 14. html[lang] pou aksesibilite / SEO
+  document.documentElement.lang=_L;
+
+  // 15. Brand tagline translation
+  const bt=document.getElementById('brand-tagline');
+  if(bt) bt.textContent=t.brand_tagline||'A Septech product';
+
+  // 16. PWA banner texts
+  const pbd=document.getElementById('pwa-banner-desc');
+  if(pbd) pbd.textContent=t.install_desc||'';
+  const pib=document.getElementById('pwa-install-btn');
+  if(pib) pib.textContent=t.install_btn||'📲 Install';
+  const plb=document.getElementById('pwa-later-btn');
+  if(plb) plb.textContent=t.install_later||'Later';
+  const pmt=document.getElementById('pwa-modal-title');
+  if(pmt) pmt.textContent=t.install_title||'Install SeptaQuiz';
+
+  // 17. Quiz screen header label
+  const qiEl=document.querySelector('.qi');
+  if(qiEl){
+    const sp=qiEl.querySelector('[data-t="question"]');
+    if(sp) sp.textContent=t.q_label||t.question||'Question';
+  }
+
+  // 18. Event badge (if visible)
+  const evb=document.getElementById('ev-badge');
+  if(evb&&evb.style.display!=='none'&&_x._currentEvent){
+    const evMap={bonus:t.event_bonus,double:t.event_double,lucky:t.event_lucky};
+    evb.textContent=evMap[_x._currentEvent]||'';
+  }
+}
+function _t(k){return _T[_L][k]||_T['ht'][k]||k;}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function _tab(v){
+  document.getElementById('pTab').style.display=v==='p'?'block':'none';
+  document.getElementById('lTab').style.display=v==='l'?'block':'none';
+  const mT=document.getElementById('mTab');
+  if(mT) mT.style.display=v==='m'?'block':'none';
+  document.querySelectorAll('.ntab').forEach((b,i)=>
+    b.classList.toggle('on',(i===0&&v==='p')||(i===1&&v==='l')||(i===2&&v==='m')));
+  if(v==='l')_rl();
+  if(v==='m'){_rm();_rw();}
+}
+
+// ── INIT KATEGORI ─────────────────────────────────────────────────────────────
+(function(){
+  const t=_T[_L];
+  document.getElementById('cg').innerHTML=_C.map(c=>
+    `<button class="cbtn" data-i="${c.i}" onclick="_sc(this,'${c.i}')">
+      <span class="ic">${c.e}</span><span class="cl">${t.cats[c.i]||c.i}</span></button>`).join('');
+  _sc(document.querySelector('[data-i="haiti"]'),'haiti');
+})();
+
+function _sc(el,id){
+  document.querySelectorAll('.cbtn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');_x.cat=id;
+}
+function _dd(el){
+  document.querySelectorAll('.dbtn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');_x.dif=el.dataset.d;
+}
+
+// ── KÒMANSE ───────────────────────────────────────────────────────────────────
+async function _go(){
+  const nm=document.getElementById('pName').value.trim();
+  if(!nm){_msg(_t('noname'));return;}
+  if(!_x.cat){_msg(_t('nocat'));return;}
+
+  // Track number of plays (for iOS PWA prompt)
+  try{sessionStorage.setItem('_plays', parseInt(sessionStorage.getItem('_plays')||'0')+1);}catch(e){}
+
+  // Anti-abuse: rate limit — 1 game per 3s
+  const now=Date.now();
+  const lastGame=parseInt(sessionStorage.getItem('_lg')||'0');
+  if(now-lastGame<3000){_msg('⏳ ...');return;}
+  sessionStorage.setItem('_lg',now);
+
+  try{
+    const r=await fetch('/api/start',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:nm,category:_x.cat,difficulty:_x.dif,lang:_L})});
+    const d=await r.json();
+    if(d.error){_msg(d.error);return;}
+
+    // Reset all state
+    _x.tok=d.token;_x.tot=d.total;
+    _x.scr=0;_x.ok=0;_x.ko=0;
+    _x.streak=0;_x.streakShown=false;
+    _x.rewardShown=false;_x.done=false;_x.ans=false;
+    _x.t0=Date.now();
+    _x.nq=null;_x.nn=0;_x.nt=0;
+    // Session key pou anti-abuse
+    _x.sessionKey=Math.random().toString(36).slice(2);
+    sessionStorage.setItem('_sk',_x.sessionKey);
+    // Setup random surprise event (q3, q4 or q5)
+    _x.event=['bonus','double','lucky'][Math.floor(Math.random()*3)];
+    _x.eventQ=Math.floor(Math.random()*3)+3; // q3-q5
+
+    _ss('s1');_lq(d.question,d.q_num,d.total);_st();
+  }catch(e){_msg(_t('connerr'));}
+}
+
+// ── CHAJE KESYON ──────────────────────────────────────────────────────────────
+function _lq(q,num,tot){
+  document.getElementById('qn').textContent=num;
+  document.getElementById('qt').textContent=tot;
+  document.getElementById('pf').style.width=`${((num-1)/tot)*100}%`;
+  document.getElementById('qs').textContent=_x.scr;
+  const cm=_C.find(c=>c.i===_x.cat);
+  const t=_T[_L];
+  document.getElementById('qcat').textContent=cm?`${cm.e} ${t.cats[cm.i]||cm.i}`:'';
+  document.getElementById('qdf').textContent=t.diffs[_x.dif]||_x.dif;
+  document.getElementById('qtxt').textContent=q.q;
+  const _LL=['A','B','C','D'];
+
+  // Show surprise event badge if this is the event question
+  const isEvent = (num === _x.eventQ);
+  _x._currentEvent = isEvent ? _x.event : null;
+  const evBadge = document.getElementById('ev-badge');
+  if(evBadge){
+    if(isEvent){
+      const evMap={bonus:t.event_bonus,double:t.event_double,lucky:t.event_lucky};
+      evBadge.textContent=evMap[_x.event]||'⭐';
+      evBadge.style.display='block';
+    } else {
+      evBadge.style.display='none';
+    }
+  }
+
+  document.getElementById('olist').innerHTML=q.opts.map((o,i)=>
+    `<button class="ob" onclick="_ans(this,${i})">
+      <span class="olt">${_LL[i]}</span><span>${o}</span></button>`).join('');
+  document.getElementById('fb').className='fb';
+  document.getElementById('abar').className='abar';
+  _x.ans=false;_x.done=false;_x.nq=null;
+}
+
+// ── TIMER ─────────────────────────────────────────────────────────────────────
+function _st(){
+  clearInterval(_x.ti);
+  const mx=_x.dif==='hard'?15:_x.dif==='medium'?20:25;
+  _x.tl=mx;
+  function tk(){
+    const c=document.getElementById('tc'),n=document.getElementById('tn');
+    if(!c)return;
+    c.style.strokeDashoffset=163.4*(1-_x.tl/mx);
+    n.textContent=_x.tl;
+    c.className=_x.tl<=5?'tp ug':'tp';
+    if(_x.tl<=0){clearInterval(_x.ti);if(!_x.ans)_tu();}
+    _x.tl--;
+  }
+  tk();_x.ti=setInterval(tk,1000);
+}
+
+function _tu(){
+  _x.ans=true;_x.ko++;
+  document.querySelectorAll('.ob').forEach(b=>b.disabled=true);
+  _sfb(false,_t('timesup'));
+  _auto();
+}
+
+// ── AUTO-ADVANCE ──────────────────────────────────────────────────────────────
+function _auto(){
+  const ab=document.getElementById('abar');
+  const af=document.getElementById('afill');
+  ab.className='abar show';
+  af.style.transition='none';
+  af.style.width='100%';
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      af.style.transition='width 1.5s linear';
+      af.style.width='0%';
+    });
+  });
+  setTimeout(()=>{
+    if(_x.done) _fin();
+    else if(_x.nq) {_lq(_x.nq,_x.nn,_x.nt);_st();}
+    else _fin();
+  },1500);
+}
+
+// ── REPONS ────────────────────────────────────────────────────────────────────
+async function _ans(el,idx){
+  if(_x.ans)return;
+  _x.ans=true;clearInterval(_x.ti);
+  document.querySelectorAll('.ob').forEach(b=>b.disabled=true);
+  try{
+    const r=await fetch('/api/answer',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({token:_x.tok,answer:idx})});
+    const d=await r.json();
+    document.querySelectorAll('.ob').forEach((b,i)=>{
+      if(i===d.correct_answer)b.classList.add('ok');
+      else if(i===idx&&!d.correct)b.classList.add('ng');
+    });
+    let pts = d.pts;
+    // Surprise event — double points or lucky
+    if(_x._currentEvent==='double'&&d.correct) pts*=2;
+    if(_x._currentEvent==='lucky') pts=Math.max(pts, d.pts); // lucky: always get some pts
+
+    _x.scr = d.score + (pts - d.pts); // adjust for event bonus
+    if(d.correct){
+      _x.ok++;
+      _x.streak++;
+      // Streak detection
+      if(_x.streak===3){
+        setTimeout(()=>_showStreak(3),400);
+      } else if(_x.streak===5){
+        setTimeout(()=>_showStreak(5),400);
+      }
+    } else {
+      _x.ko++;
+      _x.streak=0;
+    }
+    document.getElementById('qs').textContent=_x.scr;
+
+    // Feedback message
+    let fbMsg;
+    if(d.correct){
+      const evBonus=(_x._currentEvent==='double')?` (x2 🎯)`:'';
+      fbMsg=`${_t('excellent')} +${pts} ${_t('pts')}${evBonus}`;
+    } else {
+      fbMsg=`${_t('correct_ans')} ${d.correct_text}`;
+    }
+    _sfb(d.correct, fbMsg);
+
+    if(d.done){_x.done=true;_x.nq=null;}
+    else{_x.nq=d.question;_x.nn=d.q_num;_x.nt=d.total;}
+    _auto();
+  }catch(e){_sfb(false,_t('connerr'));}
+}
+
+// ── REZILTA ───────────────────────────────────────────────────────────────────
+async function _fin(){
+  clearInterval(_x.ti);
+  const el=Math.round((Date.now()-_x.t0)/1000);
+  try{await fetch('/api/finish',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({token:_x.tok,time_elapsed:el})});}catch(e){}
+
+  const tot=_x.tot;
+  const correct=_x.ok;
+  const pct=Math.round((correct/tot)*100);
+
+  document.getElementById('scor').textContent=correct;
+  document.getElementById('swrg').textContent=_x.ko;
+  document.getElementById('stim').textContent=el+'s';
+  document.getElementById('rpct').textContent=pct+'%';
+
+  // Messages selon score exact sur 7 questions
+  const t=_T[_L];
+  let title,sub;
+  if(correct>=tot)       {title=t.score77;sub='';}
+  else if(correct>=6)    {title=t.score67;sub='';}
+  else if(correct>=5)    {title=t.score57;sub='';}
+  else if(correct>=4)    {title=t.score47;sub='';}
+  else if(correct>=3)    {title=t.score37;sub='';}
+  else                   {title=t.score27;sub='';}
+
+  document.getElementById('rtit').textContent=title;
+  document.getElementById('rsub').textContent=sub;
+
+  _ss('s2');
+  setTimeout(()=>{document.getElementById('rc').style.strokeDashoffset=408.4*(1-pct/100);},100);
+
+  // Show reward if score >= 5/7 or streak >= 3
+  if(!_x.rewardShown && (correct>=5 || _x.streak>=3)){
+    _x.rewardShown=true;
+    setTimeout(_showReward, 1200);
+  }
+}
+
+function _home(){clearInterval(_x.ti);_ss('s0');}
+
+// ── LEADERBOARD ───────────────────────────────────────────────────────────────
+async function _rl(){
+  const el=document.getElementById('lb');
+  el.innerHTML=`<div class="lem">${_t('loading')}</div>`;
+  try{
+    const r=await fetch('/api/leaderboard');
+    const lb=await r.json();
+    const t=_T[_L];
+    if(!lb.length){el.innerHTML=`<div class="lem">${t.lbempty}</div>`;return;}
+    const rc=['g','s','b'];
+    el.innerHTML=lb.map((e,i)=>`
+      <div class="li ${i<3?'top':''}">
+        <div class="lr ${rc[i]||''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
+        <div class="lif">
+          <div class="ln">${_e(e.name)}</div>
+          <div class="lm">${t.cats[e.category]||e.category} · ${t.diffs[e.difficulty]||e.difficulty}</div>
+        </div>
+        <div class="ls">${e.score} ${t.pts}</div>
+      </div>`).join('');
+  }catch(err){document.getElementById('lb').innerHTML=`<div class="lem">${_t('lberr')}</div>`;}
+}
+
+// ── UTIL ──────────────────────────────────────────────────────────────────────
+function _sfb(ok,msg){
+  const b=document.getElementById('fb');
+  b.className=`fb on ${ok?'ok':'ng'}`;
+  b.innerHTML=`<span>${ok?'✅':'❌'}</span><span>${msg}</span>`;
+}
+function _ss(id){document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on');}
+function _msg(m){const t=document.getElementById('tst');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2500);}
+function _e(s){return String(s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
+
+
+
+// ── LEADERBOARD MANSYÈL ───────────────────────────────────────────────────────
+async function _rm(){
+  const el=document.getElementById('mlb');
+  el.innerHTML=`<div class="lem">⏳ ${_t('loading')}</div>`;
+  try{
+    const r=await fetch('/api/leaderboard/monthly');
+    const lb=await r.json();
+    const t=_T[_L];
+    if(!lb.length){el.innerHTML=`<div class="lem">${t.no_monthly}</div>`;return;}
+    const rc=['g','s','b'];
+    el.innerHTML=lb.map((e,i)=>`
+      <div class="li ${i<3?'top':''}">
+        <div class="lr ${rc[i]||''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
+        <div class="lif">
+          <div class="ln">${_e(e.name)}</div>
+          <div class="lm">${t.cats[e.category]||e.category} · ${t.diffs[e.difficulty]||e.difficulty}</div>
+        </div>
+        <div class="ls">${e.score} ${t.pts_label||t.pts}</div>
+      </div>`).join('');
+  }catch(err){el.innerHTML=`<div class="lem">${_t('err_monthly')}</div>`;}
+}
+
+// ── WINNER + KONTE REBOU ──────────────────────────────────────────────────────
+async function _rw(){
+  try{
+    const r=await fetch('/api/leaderboard/monthly/winner');
+    const d=await r.json();
+    const t=_T[_L];
+    const days=d.days_left||0;
+    const banner=document.getElementById('prize-countdown');
+    const leader=document.getElementById('current-leader');
+    const pt=document.getElementById('prize-title');
+    // Titre du prix traduit
+    if(pt) pt.textContent=t.prize_title||'';
+    // Compte a rebours traduit
+    if(days<=3&&days>0){
+      banner.innerHTML=`<span style="color:#e05c3a;font-weight:700">${(t.last_days||'').replace('{n}',days)}</span>`;
+    } else if(days===0){
+      banner.textContent=t.last_day||'';
+    } else {
+      banner.textContent=`⏰ ${days} ${t.days_left||''}`;
+    }
+    // Leader traduit
+    if(d.winner){
+      leader.innerHTML=`${t.current_leader||'👑'} <strong style="color:var(--accent)">${_e(d.winner.name)}</strong> — ${d.winner.score} ${t.pts_label||t.pts}`;
+    } else {
+      leader.textContent=t.no_leader||'';
+    }
+  }catch(e){console.warn('winner fetch failed',e);}
+}
+
+// ── PWA — SYSTÈME COMPLET MULTIPLATEFORME ────────────────────────────────────
+let _pwaPrompt = null;
+let _pwaInstalled = false;
+let _isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+let _isAndroid = /Android/.test(navigator.userAgent);
+let _isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+let _isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                    window.navigator.standalone === true;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _pwaPrompt = e;
+  if(!_isStandalone && !_pwaInstalled){
+    setTimeout(_showPwaBanner, 5000);
+  }
+});
+
+function _showPwaBanner(){
+  if(_isStandalone || _pwaInstalled) return;
+  if(sessionStorage.getItem('_pwa_dismissed')) return;
+  const banner = document.getElementById('pwa-banner');
+  if(banner){ _updatePwaBannerText(); banner.classList.add('show'); }
+}
+
+function _updatePwaBannerText(){
+  const t = _T[_L];
+  const els = {
+    'pwa-banner-title':'SeptaQuiz',
+    'pwa-banner-desc': t.install_desc||'',
+    'pwa-install-btn': t.install_btn||'Install',
+    'pwa-later-btn':   t.install_later||'Later',
+    'pwa-modal-title': t.install_title||'Install SeptaQuiz',
+    'pwa-close-modal': 'OK',
+  };
+  Object.entries(els).forEach(([id,txt])=>{
+    const el=document.getElementById(id); if(el) el.textContent=txt;
+  });
+}
+
+async function _pwaInstall(){
+  if(_pwaPrompt){
+    _pwaPrompt.prompt();
+    const {outcome} = await _pwaPrompt.userChoice;
+    if(outcome==='accepted'){ _pwaInstalled=true; _pwaDismiss(); }
+    _pwaPrompt = null;
+  } else {
+    _showPwaModal();
+  }
+}
+
+function _showPwaModal(){
+  const t = _T[_L];
+  const modal = document.getElementById('pwa-modal');
+  const steps = document.getElementById('pwa-steps');
+  if(!modal) return;
+  _updatePwaBannerText();
+  const sList = _isIOS
+    ? [t.pwa_ios||'Share → Add to Home Screen', t.install_tip||'Tap Add to Home Screen', 'Tap "Add" to confirm']
+    : [t.pwa_android||'Tap menu then Install', t.install_android||'Install App', 'Confirm installation'];
+  if(steps) steps.innerHTML = sList.map((s,i)=>
+    `<div class="pwa-step"><div class="pwa-step-num">${i+1}</div><div class="pwa-step-text">${s}</div></div>`
+  ).join('');
+  modal.classList.add('show');
+  _pwaDismiss();
+}
+
+function _pwaCloseModal(){
+  const m=document.getElementById('pwa-modal'); if(m) m.classList.remove('show');
+}
+
+function _pwaDismiss(){
+  const b=document.getElementById('pwa-banner'); if(b) b.classList.remove('show');
+  try{sessionStorage.setItem('_pwa_dismissed','1');}catch(e){}
+}
+
+if(_isIOS && _isSafari && !_isStandalone){
+  const plays=parseInt(sessionStorage.getItem('_plays')||'0');
+  if(plays>=2 && !sessionStorage.getItem('_pwa_dismissed')){
+    setTimeout(_showPwaModal, 3000);
+  }
+}
+
+window.addEventListener('appinstalled', ()=>{ _pwaInstalled=true; _pwaDismiss(); });
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('/service-worker.js',{scope:'/'})
+      .then(reg=>console.log('[SW] Registered:',reg.scope))
+      .catch(err=>console.warn('[SW] Failed:',err));
+  });
+}
+
+// ── BACKGROUND PARTICLES ─────────────────────────────────────────────────────
+(function _initParticles(){
+  const container=document.getElementById('bgp');
+  if(!container) return;
+  const colors=['rgba(240,192,64,','rgba(74,184,200,','rgba(224,92,58,'];
+  const symbols=['✦','◆','▲','●','◉','✧','⬡'];
+  for(let i=0;i<18;i++){
+    const dot=document.createElement('div');
+    dot.className='bp-dot';
+    const color=colors[i%colors.length];
+    const size=Math.random()*5+2;
+    const left=Math.random()*100;
+    const dur=Math.random()*18+14;
+    const delay=Math.random()*20;
+    if(i%3===0){
+      dot.textContent=symbols[Math.floor(Math.random()*symbols.length)];
+      dot.style.cssText=`left:${left}%;font-size:${size+5}px;color:${color}.13);animation-duration:${dur}s;animation-delay:-${delay}s`;
+    } else {
+      dot.style.cssText=`left:${left}%;width:${size}px;height:${size}px;background:${color}.1);animation-duration:${dur}s;animation-delay:-${delay}s`;
+    }
+    container.appendChild(dot);
+  }
+})();
+
+
+
+// ── LANGUAGE SCREEN FUNCTIONS ─────────────────────────────────────────────────
+const _LANG_KEY   = 'sq_lang';
+const _LANG_FLAGS = {ht:'🇭🇹 Kreyòl', fr:'🇫🇷 Français', en:'🇺🇸 English'};
+
+function _pickLang(l){
+  // 1. Save language
+  try{ localStorage.setItem(_LANG_KEY, l); }catch(e){}
+  // 2. Apply language (reuse existing _sl)
+  _sl(l);
+  // 3. Update badge
+  _updateBadge(l);
+  // 4. Update footer texts
+  _updateFooter();
+  // 5. Hide lang screen with animation
+  const sc = document.getElementById('lang-screen');
+  if(sc){
+    sc.classList.add('hidden');
+    setTimeout(()=>{ sc.style.display='none'; sc.classList.remove('hidden'); }, 420);
+  }
+  // 6. *** CRITICAL: Show home screen ***
+  _ss('s0');
+}
+
+function _changeLang(){
+  // Remove saved lang and show lang screen again
+  try{ localStorage.removeItem(_LANG_KEY); }catch(e){}
+  const sc = document.getElementById('lang-screen');
+  if(sc){
+    sc.style.display = 'flex';
+    sc.style.animation = 'ls-in .35s ease';
+  }
+}
+
+function _updateBadge(l){
+  const b = document.getElementById('lang-badge');
+  if(b) b.textContent = _LANG_FLAGS[l] || l.toUpperCase();
+}
+
+function _syncLangScreenLogo(){
+  const el = document.getElementById('ls-logo-text');
+  if(el) el.innerHTML = `<span>${_APP.word1}</span><span>${_APP.word2}</span>`;
+  const sub = document.getElementById('ls-subtitle');
+  if(sub) sub.textContent = _APP.subtitle || 'World Trivia Challenge';
+}
+
+// ── BOOT: Verifye si lang deja chwazi ─────────────────────────────────────────
+(function _bootLang(){
+  // Sinkwonize non app la sou tout ekran
+  _syncLangScreenLogo();
+  // Mete a jou logo prensipal la tou
+  const logo = document.querySelector('.logo');
+  if(logo) logo.innerHTML = `<span>${_APP.word1}</span> <span>${_APP.word2}</span>`;
+
+  let saved = null;
+  try { saved = localStorage.getItem(_LANG_KEY); } catch(e){}
+  if(saved && ['ht','fr','en'].includes(saved)){
+    document.getElementById('lang-screen').style.display = 'none';
+    _sl(saved);
+    _updateBadge(saved);
+    _updateFooter();
+  } else {
+    _updateBadge('ht');
+    _updateFooter();
+  }
+})();
+</script>
+</body>
+</html>
