@@ -1305,6 +1305,21 @@ if('serviceWorker' in navigator){
   }
 })();
 
+function _updateFooter(){
+  const t = _T[_L];
+
+  const terms = document.querySelector('[data-t="footer_terms"]');
+  if(terms) terms.textContent = t.footer_terms || '';
+
+  const privacy = document.querySelector('[data-t="footer_privacy"]');
+  if(privacy) privacy.textContent = t.footer_privacy || '';
+
+  const termsText = document.getElementById('footer-terms-text');
+  if(termsText) termsText.textContent = t.footer_terms_text || '';
+
+  const privacyText = document.getElementById('footer-privacy-text');
+  if(privacyText) privacyText.textContent = t.footer_privacy_text || '';
+}
 
 // ── BOOT: Verifye si lang deja chwazi ─────────────────────────────────────────
 (function _bootLang(){
