@@ -804,6 +804,67 @@ function _ut(){
 }
 function _t(k){return _T[_L][k]||_T['ht'][k]||k;}
 
+// ── LANGUAGE SCREEN FUNCTIONS ─────────────────────────────────────
+const _LANG_KEY   = 'sq_lang';
+const _LANG_FLAGS = {
+  ht:'🇭🇹 Kreyòl',
+  fr:'🇫🇷 Français',
+  en:'🇺🇸 English'
+};
+
+function _pickLang(l){
+  try{
+    localStorage.setItem(_LANG_KEY,l);
+  }catch(e){}
+
+  _sl(l);
+  _updateBadge(l);
+  _updateFooter();
+
+  const sc=document.getElementById('lang-screen');
+  if(sc){
+    sc.classList.add('hidden');
+    setTimeout(()=>{
+      sc.style.display='none';
+      sc.classList.remove('hidden');
+    },420);
+  }
+
+  _ss('s0');
+  _tab('p');
+}
+
+function _changeLang(){
+  try{
+    localStorage.removeItem(_LANG_KEY);
+  }catch(e){}
+
+  const sc=document.getElementById('lang-screen');
+  if(sc){
+    sc.style.display='flex';
+    sc.style.animation='ls-in .35s ease';
+  }
+}
+
+function _updateBadge(l){
+  const b=document.getElementById('lang-badge');
+  if(b){
+    b.textContent=_LANG_FLAGS[l]||l.toUpperCase();
+  }
+}
+
+function _syncLangScreenLogo(){
+  const el=document.getElementById('ls-logo-text');
+  if(el){
+    el.innerHTML=`<span>${_APP.word1}</span><span>${_APP.word2}</span>`;
+  }
+
+  const sub=document.getElementById('ls-subtitle');
+  if(sub){
+    sub.textContent=_APP.subtitle||'World Trivia Challenge';
+  }
+}
+
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function _tab(v){
   document.getElementById('pTab').style.display=v==='p'?'block':'none';
@@ -1244,53 +1305,6 @@ if('serviceWorker' in navigator){
   }
 })();
 
-
-
-// ── LANGUAGE SCREEN FUNCTIONS ─────────────────────────────────────────────────
-const _LANG_KEY   = 'sq_lang';
-const _LANG_FLAGS = {ht:'🇭🇹 Kreyòl', fr:'🇫🇷 Français', en:'🇺🇸 English'};
-
-function _pickLang(l){
-  // 1. Save language
-  try{ localStorage.setItem(_LANG_KEY, l); }catch(e){}
-  // 2. Apply language (reuse existing _sl)
-  _sl(l);
-  // 3. Update badge
-  _updateBadge(l);
-  // 4. Update footer texts
-  _updateFooter();
-  // 5. Hide lang screen with animation
-  const sc = document.getElementById('lang-screen');
-  if(sc){
-    sc.classList.add('hidden');
-    setTimeout(()=>{ sc.style.display='none'; sc.classList.remove('hidden'); }, 420);
-  }
-  // 6. *** CRITICAL: Show game screen ***
-_ss('s0');
-_tab('p');
-}
-
-function _changeLang(){
-  // Remove saved lang and show lang screen again
-  try{ localStorage.removeItem(_LANG_KEY); }catch(e){}
-  const sc = document.getElementById('lang-screen');
-  if(sc){
-    sc.style.display = 'flex';
-    sc.style.animation = 'ls-in .35s ease';
-  }
-}
-
-function _updateBadge(l){
-  const b = document.getElementById('lang-badge');
-  if(b) b.textContent = _LANG_FLAGS[l] || l.toUpperCase();
-}
-
-function _syncLangScreenLogo(){
-  const el = document.getElementById('ls-logo-text');
-  if(el) el.innerHTML = `<span>${_APP.word1}</span><span>${_APP.word2}</span>`;
-  const sub = document.getElementById('ls-subtitle');
-  if(sub) sub.textContent = _APP.subtitle || 'World Trivia Challenge';
-}
 
 // ── BOOT: Verifye si lang deja chwazi ─────────────────────────────────────────
 (function _bootLang(){
